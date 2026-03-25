@@ -3,24 +3,26 @@ const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
     host: "sandbox.smtp.mailtrap.io",
-    port: 25,
+    port: 2525,
     secure: false, // Use true for port 465, false for port 587
     auth: {
-        user: "",
-        pass: "",
+        user: "b00aa45624602b",
+        pass: "53c605247892e6",
     },
 });
 
+
+
 module.exports = {
-    sendMail: async (to,url) => {
+    sendMail: async (to, subject, content) => {
         const info = await transporter.sendMail({
-            from: 'Admin@hahah.com',
+            from: 'Admin@project.com',
             to: to,
-            subject: "request resetpassword email",
-            text: "click vao day de reset", // Plain-text version of the message
-            html: "click vao <a href="+url+">day</a> de reset", // HTML version of the message
+            subject: subject,
+            html: content,
         });
 
         console.log("Message sent:", info.messageId);
+        return info;
     }
 }

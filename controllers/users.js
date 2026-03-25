@@ -63,5 +63,65 @@ module.exports = {
         } catch (error) {
             return false;
         }
+    },
+    ImportUsersFromFile: async function (filePath) {
+        const ExcelJS = require('exceljs');
+        const roleModel = require('../schemas/roles');
+        const mailHandler = require('../utils/mailHandler');
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.readFile(filePath);
+        const worksheet = workbook.getWorksheet(1); // First sheet
+
+        // Generate random password (16 chars)
+        function generatePassword() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
+            let pass = "";
+            for (let i = 0; i < 16; i++) {
+                pass += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return pass;
+        }
+
+        const userRole = await roleModel.findOne({ name: 'user' });
+        if (!userRole) throw new Error("Role 'user' not found");
+
+
+        const results = [];
+        // Assuming file has headers: username, email
+        for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
+            const row = worksheet.getRow(rowNumber);
+            const username = row.getCell(1).value;
+            let emailValue = row.getCell(2).value;
+            let email = "";
+
+            if (emailValue) {
+                if (typeof emailValue === 'string') email = emailValue;
+                else if (emailValue.text) email = emailValue.text;
+                else if (emailValue.result) email = emailValue.result;
+            }
+
+
+            if (username && email) {
+                const password = generatePassword();
+                try {
+                    const newUser = await this.CreateAnUser(
+                        username, password, email, userRole._id
+                    );
+                    
+                    // Send email
+                    await mailHandler.sendMail(
+                        email, 
+                        "Your account details", 
+                        `<p>Welcome! Your username is: <b>${username}</b></p><p>Password: <b>${password}</b></p>`
+                    );
+
+                    results.push({ username, email, status: "success" });
+                } catch (err) {
+                    results.push({ username, email, status: "error", message: err.message });
+                }
+            }
+        }
+        return results;
     }
 }
+

@@ -75,4 +75,20 @@ router.delete("/:id", async function (req, res, next) {
   }
 });
 
-module.exports = router;
+let { uploadExcel } = require('../utils/uploadHandler')
+let path = require('path')
+let fs = require('fs')
+
+router.post("/import-excel", uploadExcel.single('file'), async function (req, res, next) {
+  try {
+    if (!req.file) throw new Error("File is required");
+    let filePath = path.join(__dirname, '../uploads', req.file.filename);
+    let result = await userController.ImportUsersFromFile(filePath);
+    fs.unlinkSync(filePath); // Cleanup
+    res.send(result);
+  } catch (err) {
+    res.status(400).send({ message: err.message });
+  }
+});
+
+module.exports = router;

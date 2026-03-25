@@ -1,0 +1,67 @@
+{
+	"info": {
+		"_postman_id": "3e9b1f74-ec5d-4f1b-9f8e-73c14a9c8b82",
+		"name": "User Import API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Import Users from Excel",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "user.xlsx"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/users/import-excel",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"import-excel"
+					]
+				},
+				"description": "Upload an Excel file (user.xlsx) with 'username' and 'email' columns. The system will create users with random 16-character passwords, assign the USER role, and send an email via Mailtrap."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	]
+}
